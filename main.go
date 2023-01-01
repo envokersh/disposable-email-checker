@@ -13,14 +13,19 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-const LIST_URL = "https://raw.githubusercontent.com/disposable-email-domains/disposable-email-domains/master/disposable_email_blocklist.conf"
+const DEFAULT_LIST = "https://disposable.github.io/disposable-email-domains/domains.txt"
 
 func main() {
+	list_url, ok := os.LookupEnv("DOMAIN_LIST")
+	if !ok {
+		list_url = DEFAULT_LIST
+	}
+
 	s := gocron.NewScheduler(time.UTC)
 	var domains []string
 
 	s.Every(24).Hours().Do(func() {
-		resp, err := http.Get(LIST_URL)
+		resp, err := http.Get(list_url)
 		if err != nil {
 			log.Fatalln(err)
 		}
